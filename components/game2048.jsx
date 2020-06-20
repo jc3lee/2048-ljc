@@ -998,7 +998,7 @@ const Game2048 = () => {
           await next({
             x: items[index].x,
             y: items[index].y,
-            config: { duration: 150 }
+            config: { duration: 200 }
           })
           await next({
             opacity: 0,
@@ -1019,7 +1019,7 @@ const Game2048 = () => {
             x: items[index].x,
             y: items[index].y,
             scale: 1.1,
-            config: { duration: 150 }
+            config: { duration: 200 }
           })
           await next({
             scale: 1,
@@ -1039,7 +1039,7 @@ const Game2048 = () => {
           await next({
             x: items[index].x,
             y: items[index].y,
-            config: { duration: 150 }
+            config: { duration: 200 }
           })
         } else {
           await next({
@@ -1054,7 +1054,7 @@ const Game2048 = () => {
           await next({
             opacity: items[index].value ? 1 : 0,
             scale: items[index].value ? 1 : 0,
-            config: { duration: 150 }
+            config: { duration: 200 }
           })
         }
       }
