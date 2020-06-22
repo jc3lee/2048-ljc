@@ -8,6 +8,11 @@ const nbArrDefault = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 let totalScore = 0
 
+let toggleHelp = false
+
+let reached2048 = false
+let continueGame = false
+
 let prevTotalScoreArr = []
 
 let gameOver = false
@@ -88,7 +93,7 @@ initItems()
 
 const getRandNb = max => Math.floor(Math.random() * max)
 //probability of getting a 2 = 90%, and a 4 = 10%
-const getNewNb = max => Math.random() < 0.9 ? 2 : 4
+const getNewNb = () => Math.random() < 0.9 ? 2 : 4
 
 const findZeroValueIndex = () => items.findIndex(i => i.value === 0)
 
@@ -186,6 +191,9 @@ const moveLeft = () => {
             itemToUpdate.bounce = true
             //update score too
             totalScore += itemToUpdate.value
+            //check if has reached 2048
+            if (itemToUpdate.value === 2048) reached2048 = true
+            else reached2048 = false
             // console.log("updated bounce", itemToUpdate)
             //change alreadyAdded to true to prevent adding to it
             alreadyAdded = true
@@ -276,6 +284,9 @@ const moveRight = () => {
             itemToUpdate.bounce = true
             //update score too
             totalScore += itemToUpdate.value
+            //check if has reached 2048
+            if (itemToUpdate.value === 2048) reached2048 = true
+            else reached2048 = false
             // console.log("updated bounce", itemToUpdate)
             //change alreadyAdded to true to prevent adding to it
             alreadyAdded = true
@@ -366,6 +377,9 @@ const moveTop = () => {
             itemToUpdate.bounce = true
             //update score too
             totalScore += itemToUpdate.value
+            //check if has reached 2048
+            if (itemToUpdate.value === 2048) reached2048 = true
+            else reached2048 = false
             // console.log("updated bounce", itemToUpdate)
             //change alreadyAdded to true to prevent adding to it
             alreadyAdded = true
@@ -456,6 +470,9 @@ const moveBtm = () => {
             itemToUpdate.bounce = true
             //update score too
             totalScore += itemToUpdate.value
+            //check if has reached 2048
+            if (itemToUpdate.value === 2048) reached2048 = true
+            else reached2048 = false
             // console.log("updated bounce", itemToUpdate)
             //change alreadyAdded to true to prevent adding to it
             alreadyAdded = true
@@ -703,6 +720,8 @@ const checkBtm = () => {
 
 const Game2048 = () => {
 
+  const helpRef = useRef(null)
+  const winRef = useRef(null)
   const scoreRef = useRef(null)
   const highscoreRef = useRef(null)
 
@@ -840,6 +859,7 @@ const Game2048 = () => {
   }
 
   const resetGame = () => {
+    hideWin()
     setItems(index => ({
       to: async (next) => {
         await next({
@@ -865,12 +885,15 @@ const Game2048 = () => {
     updateScore()
     gameOver = false
     didUndo = false
+    reached2048 = false
+    continueGame = false
     setFrontProps({ opacity: 0, config: { duration: 100 } })
   }
 
   const handleUndo = () => {
     if (prevItemsArr.length < 2) return
     if (didUndo) return
+    hideWin()
     didUndo = true
     items = prevItemsArr[prevItemsArr.length - 2]
     prevItemsArr.push(items.map(i => Object.assign({}, i)))
@@ -960,6 +983,7 @@ const Game2048 = () => {
   }
 
   const handleMove = (direction) => {
+    if (toggleHelp) return
     if (gameOver) return
     let canMove
     switch (direction) {
@@ -1067,12 +1091,54 @@ const Game2048 = () => {
     updateItemAnimationState()
     recycleItems()
     gameOver = checkForGameOver()
+
+    // gameOver = true
     if (gameOver) {
       setFrontProps({ opacity: 1, config: { duration: 100 } })
+    }
+
+    reached2048 = true
+    //check if won the game
+    if (reached2048 && !continueGame) {
+      gameOver = true
+      showWin()
     }
     //keep this version in the prevItemsArr
     prevItemsArr.push(items.map(i => Object.assign({}, i)))
     prevTotalScoreArr.push(totalScore)
+  }
+
+  const handleContinue = () => {
+    continueGame = true
+    gameOver = false
+    hideWin()
+  }
+
+  const handleHelp = () => {
+    toggleHelp = !toggleHelp
+    if (toggleHelp) {
+      showHelp()
+    } else {
+      hideHelp()
+    }
+  }
+
+  const showHelp = () => {
+    helpRef.current.classList.add("showHelp")
+  }
+
+  const hideHelp = () => {
+    if (helpRef.current.classList.contains("showHelp"))
+      helpRef.current.classList.remove("showHelp")
+  }
+
+  const showWin = () => {
+    winRef.current.classList.add("showWin")
+  }
+
+  const hideWin = () => {
+    if (winRef.current.classList.contains("showWin"))
+      winRef.current.classList.remove("showWin")
   }
 
   return (
@@ -1092,6 +1158,9 @@ const Game2048 = () => {
         <div className="topContainerBtm">
           <button className="share">
             <a href={`https://twitter.com/intent/tweet?text=${twitterText}`} ><img src="/icons/share.png" alt="share" /></a>
+          </button>
+          <button className="help" onClick={handleHelp}>
+            <img src="/icons/help.png" alt="help" />
           </button>
           <button className="back" onClick={handleUndo}>
             <img src="/icons/back.png" alt="back" />
@@ -1138,6 +1207,28 @@ const Game2048 = () => {
         <animated.div {...bind()} style={frontProps} className="gridContainerFront">
           <h1>Game Over!</h1>
         </animated.div>
+        <div ref={winRef} className="containerWin" onClick={handleContinue}>
+          <h1>🎉 You win! 🎉</h1>
+          <p>Tap to continue</p>
+        </div>
+        <div ref={helpRef} className="containerHelp" onClick={handleHelp}>
+          <ul>
+            <li>
+              2048 is a game where you combine numbered tiles to make a higher numbered tile. You start with two tiles, the lowest possible number is two.
+            </li>
+            <li>
+              Move by swiping or using the arrow keys on a PC.
+              Each time you move the tiles, another tile pops up ramdomly.
+            </li>
+            <li>
+              By making two tiles with the same number collide on one another they will merge into one tile with the sum of the numbers. You can undo your last move.
+            </li>
+            <li>
+              The goal is to combine tiles until you get a 2048 tile. After winning, you can choose to continue even further.
+            </li>
+          </ul>
+          <p>Tap to continue</p>
+        </div>
       </div>
       {/* <div className="controls">
         <button onClick={() => handleMove(0)}>Left</button>
@@ -1221,7 +1312,7 @@ const Game2048 = () => {
           padding: 1rem 0;
         }
 
-        .topContainerBtm .share, .topContainerBtm .back, .topContainerBtm .reset {
+        .topContainerBtm .share, .topContainerBtm .help,.topContainerBtm .back, .topContainerBtm .reset {
           color: #eee;
           width: 35px;
           height: 35px;
@@ -1251,17 +1342,17 @@ const Game2048 = () => {
           align-items: center;
         }
 
-        .topContainerBtm .back {
+        .topContainerBtm .help, .topContainerBtm .back {
           margin-right: 25px;
         }
 
-        .topContainerBtm .share img, .topContainerBtm .back img, .topContainerBtm .reset img{
+        .topContainerBtm .share img, .topContainerBtm .help img, .topContainerBtm .back img, .topContainerBtm .reset img{
           object-fit: contain;
           width: 18px;
           height: 18px;
         }
 
-        .topContainerBtm .share:hover, .topContainerBtm .back:hover, .topContainerBtm .reset:hover,
+        .topContainerBtm .share:hover,.topContainerBtm .help:hover, .topContainerBtm .back:hover, .topContainerBtm .reset:hover,
         .topContainerBtm .share:focus, .topContainerBtm .back:focus, .topContainerBtm .reset:focus {
           opacity: 0.85;
         }
@@ -1280,6 +1371,7 @@ const Game2048 = () => {
           background: rgba(177, 136, 136, 0.5);
           padding: 5px;
           display: flex;
+          flex-flow: column nowrap;
           justify-content: center;
           align-items: center;
           color: black;
@@ -1337,7 +1429,74 @@ const Game2048 = () => {
           font-size: 1.6rem;
           font-family: sans-serif;
         }
+
+        .containerWin {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          background: rgba(255, 205, 205, 0.6);
+          padding: 5px;
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: center;
+          align-items: center;
+          color: black;
+          font-family: sans-serif;
+          border-radius: 8px;
+          margin: 0 auto;
+          z-index: -1000;
+          opacity: 0;
+          transition: opacity 0.5s ease-in;
+        }
         
+        .containerWin p{
+          margin-top: 2.5rem;
+          font-size: 1.25rem;
+        }
+
+        .showWin {
+          z-index: 2048;
+          opacity: 1;
+        }
+
+        .containerHelp {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          background: rgb(255, 205, 205);
+          display: flex;
+          flex-flow: column nowrap;
+          justify-content: center;
+          align-items: center;
+          color: black;
+          font-family: sans-serif;
+          border-radius: 8px;
+          margin: 0 auto;
+          z-index: -1000;
+          opacity: 0;
+          overflow: hidden;
+          transition: all 0.2s ease-in;
+          padding: 1rem;
+        }
+        .containerHelp ul {
+          margin-top: 0.5rem;
+          list-style: disc inside;
+          font-size: 0.9rem;
+        }
+        
+        .containerHelp ul li {
+          margin-bottom: 0.5rem;
+        }
+        .containerHelp p {
+          font-weight: bold;
+        }
+
+
+        .showHelp {
+          opacity: 0.95;
+          z-index: 8402
+        }
+
         .controls button {
           padding: 1rem;
         }        
