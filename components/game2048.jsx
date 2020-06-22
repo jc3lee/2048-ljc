@@ -860,6 +860,8 @@ const Game2048 = () => {
 
   const resetGame = () => {
     hideWin()
+    hideHelp()
+    toggleHelp = false
     setItems(index => ({
       to: async (next) => {
         await next({
@@ -891,9 +893,11 @@ const Game2048 = () => {
   }
 
   const handleUndo = () => {
+    hideWin()
+    hideHelp()
+    toggleHelp = false
     if (prevItemsArr.length < 2) return
     if (didUndo) return
-    hideWin()
     didUndo = true
     items = prevItemsArr[prevItemsArr.length - 2]
     prevItemsArr.push(items.map(i => Object.assign({}, i)))
