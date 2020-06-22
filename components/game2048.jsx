@@ -1475,7 +1475,6 @@ const Game2048 = () => {
           z-index: -1000;
           opacity: 0;
           overflow: hidden;
-          transition: all 0.2s ease-in;
           padding: 1rem;
         }
         .containerHelp ul {
