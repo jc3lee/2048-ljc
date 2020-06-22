@@ -1097,7 +1097,7 @@ const Game2048 = () => {
       setFrontProps({ opacity: 1, config: { duration: 100 } })
     }
 
-    reached2048 = true
+    // reached2048 = true
     //check if won the game
     if (reached2048 && !continueGame) {
       gameOver = true
