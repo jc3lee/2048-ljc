@@ -722,6 +722,7 @@ const Game2048 = () => {
 
   const helpRef = useRef(null)
   const winRef = useRef(null)
+  const gameOverRef = useRef(null)
   const scoreRef = useRef(null)
   const highscoreRef = useRef(null)
 
@@ -782,8 +783,6 @@ const Game2048 = () => {
     color: items[index].value > 4 ? "white" : "black",
   }))
 
-  const [frontProps, setFrontProps] = useSpring(() => ({ opacity: 0 }))
-
   useEffect(() => {
     initGame()
     initHighScore()
@@ -794,6 +793,9 @@ const Game2048 = () => {
     script.src = "https://platform.twitter.com/widgets.js"
     script.async = true
     document.body.appendChild(script)
+    return () => {
+      console.log("cleaned")
+    }
   }, [resetCounter])
 
   const handleKeyPress = e => {
@@ -862,6 +864,8 @@ const Game2048 = () => {
     hideWin()
     hideHelp()
     toggleHelp = false
+    hideGameOver()
+
     setItems(index => ({
       to: async (next) => {
         await next({
@@ -889,12 +893,13 @@ const Game2048 = () => {
     didUndo = false
     reached2048 = false
     continueGame = false
-    setFrontProps({ opacity: 0, config: { duration: 100 } })
   }
 
   const handleUndo = () => {
     hideWin()
     hideHelp()
+    hideGameOver()
+
     toggleHelp = false
     if (prevItemsArr.length < 2) return
     if (didUndo) return
@@ -982,7 +987,6 @@ const Game2048 = () => {
     }))
     if (gameOver) {
       gameOver = false
-      setFrontProps({ opacity: 0, config: { duration: 100 } })
     }
   }
 
@@ -1095,10 +1099,11 @@ const Game2048 = () => {
     updateItemAnimationState()
     recycleItems()
     gameOver = checkForGameOver()
-
+    // // DEBUG
     // gameOver = true
     if (gameOver) {
-      setFrontProps({ opacity: 1, config: { duration: 100 } })
+      //show gameOver
+      showGameOver()
     }
 
     // reached2048 = true
@@ -1143,6 +1148,15 @@ const Game2048 = () => {
   const hideWin = () => {
     if (winRef.current.classList.contains("showWin"))
       winRef.current.classList.remove("showWin")
+  }
+
+  const showGameOver = () => {
+    gameOverRef.current.classList.add("showGameOver")
+  }
+
+  const hideGameOver = () => {
+    if (gameOverRef.current.classList.contains("showGameOver"))
+      gameOverRef.current.classList.remove("showGameOver")
   }
 
   return (
@@ -1208,9 +1222,10 @@ const Game2048 = () => {
             </animated.div>
           })}
         </div>
-        <animated.div {...bind()} style={frontProps} className="gridContainerFront">
+        <animated.div {...bind()} className="containerSwipe" />
+        <div ref={gameOverRef} className="containerGameOver">
           <h1>Game Over!</h1>
-        </animated.div>
+        </div>
         <div ref={winRef} className="containerWin" onClick={handleContinue}>
           <h1>🎉 You win! 🎉</h1>
           <p>Tap to continue</p>
@@ -1252,7 +1267,9 @@ const Game2048 = () => {
         body {
           background: #faf8f0;
           display: flex;
+          width: 100vw;
           height: 100vh;
+          overflow: hidden;
           flex-flow: column nowrap;
           overscroll-behavior-y: none;
           touch-action: none;
@@ -1368,7 +1385,20 @@ const Game2048 = () => {
           height: 310px;
         }
 
-        .gridContainerFront {
+        .containerSwipe {
+          position: absolute;
+          width: 550px;
+          top: 0;
+          left: -120px;
+          height: 405px;
+          background: rgba(177, 136, 136, 0.5);
+          border: 1px solid red;
+          margin: 0 auto;
+          z-index: 2000;
+          opacity: 0;
+        }
+
+        .containerGameOver {
           position: absolute;
           width: 100%;
           height: 100%;
@@ -1382,9 +1412,14 @@ const Game2048 = () => {
           font-family: sans-serif;
           border-radius: 8px;
           margin: 0 auto;
-          z-index: 2000;
+          z-index: -1000;
           opacity: 0;
           transition: opacity 0.3s ease;
+        }
+
+        .showGameOver{
+          z-index: 2048;
+          opacity: 1;
         }
 
         .gridContainerBack {
