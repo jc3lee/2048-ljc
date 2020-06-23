@@ -1427,10 +1427,8 @@ const Game2048 = () => {
 
         .containerSwipe {
           position: absolute;
-          width: 550px;
-          top: 0;
-          left: -120px;
-          height: 405px;
+          width: 100%;
+          height: 100%;
           background: rgba(177, 136, 136, 0.5);
           border: 1px solid red;
           margin: 0 auto;
