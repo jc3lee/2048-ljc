@@ -1226,65 +1226,68 @@ const Game2048 = () => {
           </button>
         </div>
       </div>
-      <div className="container">
-        <div className="gridContainerBack">
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-          <div className="itemBack" />
-        </div>
-        <div className="gridContainer">
-          {itemsProps.map((props, index) => {
-            return <animated.div key={index} className="item" style={{
-              x: props.x,
-              y: props.y,
-              scale: props.scale,
-              background: props.background,
-              opacity: props.opacity,
-              zIndex: props.zIndex,
-              color: props.color
-            }}>
-              {props.value}
-            </animated.div>
-          })}
-        </div>
+
+      <div className="outerContainer">
         <animated.div {...bind()} className="containerSwipe" />
-        <div ref={gameOverRef} className="containerGameOver">
-          <h1>Game Over!</h1>
-        </div>
-        <div ref={winRef} className="containerWin" onClick={handleContinue}>
-          <h1>🎉 You win! 🎉</h1>
-          <p>Tap to continue</p>
-        </div>
-        <div ref={helpRef} className="containerHelp" onClick={handleHelp}>
-          <ul>
-            <li>
-              2048 is a game where you combine numbered tiles to make a higher numbered tile. You start with two tiles, the lowest possible number is two.
+        <div className="container">
+          <div className="gridContainerBack">
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+            <div className="itemBack" />
+          </div>
+          <div className="gridContainer">
+            {itemsProps.map((props, index) => {
+              return <animated.div key={index} className="item" style={{
+                x: props.x,
+                y: props.y,
+                scale: props.scale,
+                background: props.background,
+                opacity: props.opacity,
+                zIndex: props.zIndex,
+                color: props.color
+              }}>
+                {props.value}
+              </animated.div>
+            })}
+          </div>
+          <div ref={gameOverRef} className="containerGameOver">
+            <h1>Game Over!</h1>
+          </div>
+          <div ref={winRef} className="containerWin" onClick={handleContinue}>
+            <h1>🎉 You win! 🎉</h1>
+            <p>Tap to continue</p>
+          </div>
+          <div ref={helpRef} className="containerHelp" onClick={handleHelp}>
+            <ul>
+              <li>
+                2048 is a game where you combine numbered tiles to make a higher numbered tile. You start with two tiles, the lowest possible number is two.
             </li>
-            <li>
-              Move by swiping or using the arrow keys on a PC.
-              Each time you move the tiles, another tile pops up ramdomly.
+              <li>
+                Move by swiping or using the arrow keys on a PC.
+                Each time you move the tiles, another tile pops up ramdomly.
             </li>
-            <li>
-              By making two tiles with the same number collide on one another they will merge into one tile with the sum of the numbers. You can undo your last move.
+              <li>
+                By making two tiles with the same number collide on one another they will merge into one tile with the sum of the numbers. You can undo your last move.
             </li>
-            <li>
-              The goal is to combine tiles until you get a 2048 tile. After winning, you can choose to continue even further.
+              <li>
+                The goal is to combine tiles until you get a 2048 tile. After winning, you can choose to continue even further.
             </li>
-          </ul>
-          <p>Tap to continue</p>
+            </ul>
+            <p>Tap to continue</p>
+          </div>
         </div>
       </div>
       {/* <div className="controls">
@@ -1311,6 +1314,13 @@ const Game2048 = () => {
           flex-flow: column nowrap;
           overscroll-behavior-y: none;
           touch-action: none;
+        }
+
+        main {
+          width: 100vw;
+          height: 100vh;
+          display: flex;
+          flex-flow: column;
         }
 
         .controls {
@@ -1414,6 +1424,12 @@ const Game2048 = () => {
         .topContainerBtm .share:hover,.topContainerBtm .help:hover, .topContainerBtm .back:hover, .topContainerBtm .reset:hover,
         .topContainerBtm .share:focus, .topContainerBtm .back:focus, .topContainerBtm .reset:focus {
           opacity: 0.85;
+        }
+
+        .outerContainer {
+          width: 100%;
+          position: relative;
+          flex-grow: 1;
         }
 
         .container {
