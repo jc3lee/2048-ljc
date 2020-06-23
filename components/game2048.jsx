@@ -21,6 +21,8 @@ let prevItemsArr = []
 
 let didUndo = false
 
+let hasMove = false
+
 const twitterText = "Hello%20world%2C%20I%20had%20the%20bad%20luck%20of%20clicking%20that%20follow%20button%20on%20that%20dude%27s%20account%20and%20now%20I%27m%20playing%20a%20crappy%20game%20to%20not%20hurt%20his%20feelings."
 
 const backArr = [
@@ -718,6 +720,22 @@ const checkBtm = () => {
   return canMove
 }
 
+
+const addInitialTwoTiles = () => {
+  let rd1 = 0, rd2 = 0
+  do {
+    rd1 = getRandNb(16)
+    rd2 = getRandNb(16)
+  } while (rd1 === rd2)
+  let i1 = findZeroValueIndex()
+  let randValue1 = getNewNb()
+  updateItem(i1, randValue1, getBack(randValue1), rd1, 1001)
+  let i2 = findZeroValueIndex()
+  let randValue2 = getNewNb()
+  updateItem(i2, randValue2, getBack(randValue2), rd2, 1001)
+}
+
+
 const Game2048 = () => {
 
   const helpRef = useRef(null)
@@ -788,6 +806,7 @@ const Game2048 = () => {
     initGame()
     //add keypress
     window.addEventListener("keydown", handleKeyPress)
+    window.addEventListener("unload", handleLeaving)
     //add share script
     const script = document.createElement("script")
     script.src = "https://platform.twitter.com/widgets.js"
@@ -796,6 +815,8 @@ const Game2048 = () => {
     return () => {
       // console.log("cleaned")
       window.removeEventListener("keydown", handleKeyPress)
+      window.removeEventListener("unload", handleLeaving)
+
     }
   }, [resetCounter])
 
@@ -818,18 +839,33 @@ const Game2048 = () => {
     }
   }
 
+  const handleLeaving = () => {
+    if (hasMove) {
+      window.localStorage.setItem("totalScore", JSON.stringify(totalScore))
+      window.localStorage.setItem("items", JSON.stringify(items))
+    }
+  }
+
   const initGame = () => {
-    let rd1 = 0, rd2 = 0
-    do {
-      rd1 = getRandNb(16)
-      rd2 = getRandNb(16)
-    } while (rd1 === rd2)
-    let i1 = findZeroValueIndex()
-    let randValue1 = getNewNb()
-    updateItem(i1, randValue1, getBack(randValue1), rd1, 1001)
-    let i2 = findZeroValueIndex()
-    let randValue2 = getNewNb()
-    updateItem(i2, randValue2, getBack(randValue2), rd2, 1001)
+    let savedItemsJSON = window.localStorage.getItem("items")
+    if (savedItemsJSON) {
+      try {
+        items = JSON.parse(savedItemsJSON)
+        totalScore = window.localStorage.getItem("totalScore") || 0
+        if (totalScore) {
+          console.log("totalScore", totalScore)
+          totalScore = parseInt(totalScore)
+          updateScore()
+        }
+      } catch (err) {
+        console.log("failed to parse saved items")
+        window.localStorage.removeItem("items")
+        window.localStorage.removeItem("totalScore")
+        addInitialTwoTiles()
+      }
+    } else {
+      addInitialTwoTiles()
+    }
     setItems(index => ({
       to: async (next) => {
         await next({
@@ -863,7 +899,10 @@ const Game2048 = () => {
     hideHelp()
     toggleHelp = false
     hideGameOver()
-
+    //clean storage items
+    window.localStorage.removeItem("items")
+    //clean storage score
+    window.localStorage.removeItem("totalScore")
     setItems(index => ({
       to: async (next) => {
         await next({
@@ -1012,6 +1051,8 @@ const Game2048 = () => {
     }
     // console.log("canMove", canMove)
     if (!canMove) return
+    //update hasMove to trigger save on unload
+    hasMove = true
     didUndo = false
     addItem()
     setItems(index => ({
