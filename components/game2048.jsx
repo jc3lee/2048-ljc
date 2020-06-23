@@ -733,7 +733,7 @@ const Game2048 = () => {
       cancel()
     },
     onDragEnd: ({ movement: [x, y] }) => {
-      console.log(x, y)
+      // console.log(x, y)
       //detect whether mouse dragging left, right, top, btm
       if (Math.abs(x) > Math.abs(y)) {
         //left or right
@@ -784,17 +784,18 @@ const Game2048 = () => {
   }))
 
   useEffect(() => {
-    initGame()
     initHighScore()
+    initGame()
     //add keypress
-    window.addEventListener("keydown", e => handleKeyPress(e))
+    window.addEventListener("keydown", handleKeyPress)
     //add share script
     const script = document.createElement("script")
     script.src = "https://platform.twitter.com/widgets.js"
     script.async = true
     document.body.appendChild(script)
     return () => {
-      console.log("cleaned")
+      // console.log("cleaned")
+      window.removeEventListener("keydown", handleKeyPress)
     }
   }, [resetCounter])
 
@@ -829,9 +830,6 @@ const Game2048 = () => {
     let i2 = findZeroValueIndex()
     let randValue2 = getNewNb()
     updateItem(i2, randValue2, getBack(randValue2), rd2, 1001)
-
-    // console.log(items)
-
     setItems(index => ({
       to: async (next) => {
         await next({
@@ -882,6 +880,7 @@ const Game2048 = () => {
       }
     }))
     initItems()
+
     incrResetCounter(resetCounter + 1)
     //only for debug resetting high score
     // window.localStorage.setItem("highscore", 0)
